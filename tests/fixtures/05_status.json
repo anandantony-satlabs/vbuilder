@@ -1,0 +1,16 @@
+{
+  "name": "status_reports_stages",
+  "prompt": "Report project status",
+  "script": {
+    "tool": "vbuilder",
+    "args": {
+      "action": "status",
+      "projectDir": "/tmp/vb-fix-init"
+    },
+    "text": "status done"
+  },
+  "expect": {
+    "alive": true,
+    "resultContains": "S4 dv/flow"
+  }
+}

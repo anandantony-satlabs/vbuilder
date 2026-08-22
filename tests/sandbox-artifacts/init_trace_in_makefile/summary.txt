@@ -1,0 +1,16 @@
+Test: init_trace_in_makefile
+Target: /home/anand-satlabs/SATLABS/payload_fpga/.pi/extensions/vbuilder
+Fake: /home/anand-satlabs/SATLABS/payload_fpga/.pi/extensions/extension_sandbox/fake
+Outcome: pass
+Duration: 1412ms
+Exit Code: 0
+Timed Out: false
+Detail: child ran to completion | result matched "dv/flow" | result isError=false
+
+Tool Results: 1
+  - vbuilder: vbuilder init ✓
+created (40):
+  + docs/architecture/microarchitecture.md
+  + docs/architecture/modul
+
+Errors: 0

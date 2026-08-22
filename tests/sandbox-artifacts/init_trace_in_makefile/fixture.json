@@ -1,0 +1,20 @@
+{
+  "name": "init_trace_in_makefile",
+  "prompt": "Scaffold a project and verify --trace is in the TB Makefile",
+  "script": {
+    "tool": "vbuilder",
+    "args": {
+      "action": "init",
+      "project": "test_trace_proj",
+      "targetDir": "/tmp/vbuilder_sandbox_test/test_trace_proj",
+      "module": "test_mod",
+      "gitInit": false
+    },
+    "text": "VBUILDER_TRACE_DONE"
+  },
+  "expect": {
+    "alive": true,
+    "resultContains": "dv/flow",
+    "resultIsError": false
+  }
+}

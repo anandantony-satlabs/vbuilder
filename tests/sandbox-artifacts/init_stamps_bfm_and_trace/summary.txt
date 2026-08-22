@@ -1,0 +1,16 @@
+Test: init_stamps_bfm_and_trace
+Target: /home/anand-satlabs/SATLABS/payload_fpga/.pi/extensions/vbuilder
+Fake: /home/anand-satlabs/SATLABS/payload_fpga/.pi/extensions/extension_sandbox/fake
+Outcome: pass
+Duration: 1348ms
+Exit Code: 0
+Timed Out: false
+Detail: child ran to completion | result matched "rtl/tb/axi_stream_bfm.svh" | result isError=false
+
+Tool Results: 1
+  - vbuilder: vbuilder init ✓
+created (40):
+  + docs/architecture/microarchitecture.md
+  + docs/architecture/modul
+
+Errors: 0

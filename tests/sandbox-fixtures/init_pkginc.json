@@ -1,0 +1,21 @@
+{
+  "name": "init_uvm_tests_included_in_pkg",
+  "prompt": "Scaffold a project and verify test files are included in the package (not listed in filelist.f)",
+  "script": {
+    "tool": "vbuilder",
+    "args": {
+      "action": "init",
+      "project": "test_pkginc_proj",
+      "targetDir": "/tmp/vbuilder_sandbox_test/test_pkginc_proj",
+      "module": "test_mod",
+      "gitInit": false,
+      "force": true
+    },
+    "text": "VBUILDER_PKGINC_DONE"
+  },
+  "expect": {
+    "alive": true,
+    "resultContains": "common/test_mod_pkg.sv",
+    "resultIsError": false
+  }
+}

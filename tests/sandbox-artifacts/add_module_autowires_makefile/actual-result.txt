@@ -1,0 +1,9 @@
+vbuilder add_module ✓
+created (4):
+  + rtl/tx_submod.sv
+  + rtl/tx_submod_pkg.sv
+  + rtl/tb/axi_stream_bfm.svh
+  + rtl/tb/tx_submod_tb.sv
+auto-wired (2):
+  ~ rtl/filelist.f
+  ~ rtl/tb/Makefile

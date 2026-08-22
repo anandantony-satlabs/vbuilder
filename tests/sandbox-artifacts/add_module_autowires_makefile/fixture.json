@@ -1,0 +1,20 @@
+{
+  "name": "add_module_autowires_makefile",
+  "prompt": "Add a module with alsoTb and verify the Makefile target is auto-wired",
+  "script": {
+    "tool": "vbuilder",
+    "args": {
+      "action": "add_module",
+      "projectDir": "/tmp/vbuilder_sandbox_test/test_addmod_proj",
+      "module": "tx_submod",
+      "alsoTb": true,
+      "alsoDv": false
+    },
+    "text": "VBUILDER_ADDMOD_DONE"
+  },
+  "expect": {
+    "alive": true,
+    "resultContains": "rtl/tb/Makefile",
+    "resultIsError": false
+  }
+}

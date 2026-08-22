@@ -1,0 +1,17 @@
+Test: add_module_autowires_makefile
+Target: /home/anand-satlabs/SATLABS/payload_fpga/.pi/extensions/vbuilder
+Fake: /home/anand-satlabs/SATLABS/payload_fpga/.pi/extensions/extension_sandbox/fake
+Outcome: pass
+Duration: 1333ms
+Exit Code: 0
+Timed Out: false
+Detail: child ran to completion | result matched "rtl/tb/Makefile" | result isError=false
+
+Tool Results: 1
+  - vbuilder: vbuilder add_module ✓
+created (4):
+  + rtl/tx_submod.sv
+  + rtl/tx_submod_pkg.sv
+  + rtl/tb/axi_stre
+
+Errors: 0

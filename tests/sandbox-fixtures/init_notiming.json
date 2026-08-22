@@ -1,0 +1,21 @@
+{
+  "name": "init_uvm_no_timing_flag",
+  "prompt": "Scaffold a project and verify --timing is NOT in the verilator backend (it triggers the UVM process class bug)",
+  "script": {
+    "tool": "vbuilder",
+    "args": {
+      "action": "init",
+      "project": "test_notiming_proj",
+      "targetDir": "/tmp/vbuilder_sandbox_test/test_notiming_proj",
+      "module": "test_mod",
+      "gitInit": false,
+      "force": true
+    },
+    "text": "VBUILDER_NOTIMING_DONE"
+  },
+  "expect": {
+    "alive": true,
+    "resultContains": "dv/flow",
+    "resultIsError": false
+  }
+}

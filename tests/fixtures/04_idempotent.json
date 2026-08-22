@@ -1,0 +1,17 @@
+{
+  "name": "add_test_idempotent",
+  "prompt": "Re-add the same test (must be idempotent)",
+  "script": {
+    "tool": "vbuilder",
+    "args": {
+      "action": "add_test",
+      "projectDir": "/tmp/vb-fix-init",
+      "test": "error_injection_test"
+    },
+    "text": "idempotent ok"
+  },
+  "expect": {
+    "alive": true,
+    "resultContains": "exists"
+  }
+}

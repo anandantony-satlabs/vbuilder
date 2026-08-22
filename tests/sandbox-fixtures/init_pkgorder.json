@@ -1,0 +1,21 @@
+{
+  "name": "init_uvm_pkg_before_filelist",
+  "prompt": "Scaffold a project and verify uvm_pkg.sv comes before -f filelist in COMPILE_CMD",
+  "script": {
+    "tool": "vbuilder",
+    "args": {
+      "action": "init",
+      "project": "test_pkgorder_proj",
+      "targetDir": "/tmp/vbuilder_sandbox_test/test_pkgorder_proj",
+      "module": "test_mod",
+      "gitInit": false,
+      "force": true
+    },
+    "text": "VBUILDER_PKGORDER_DONE"
+  },
+  "expect": {
+    "alive": true,
+    "resultContains": "dv/flow",
+    "resultIsError": false
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "init_uvm_interface_stamped",
+  "prompt": "Scaffold a project and verify the virtual interface file is stamped",
+  "script": {
+    "tool": "vbuilder",
+    "args": {
+      "action": "init",
+      "project": "test_vif_proj",
+      "targetDir": "/tmp/vbuilder_sandbox_test/test_vif_proj",
+      "module": "test_mod",
+      "gitInit": false,
+      "force": true
+    },
+    "text": "VBUILDER_VIF_DONE"
+  },
+  "expect": {
+    "alive": true,
+    "resultContains": "common/test_mod_if.sv",
+    "resultIsError": false
+  }
+}

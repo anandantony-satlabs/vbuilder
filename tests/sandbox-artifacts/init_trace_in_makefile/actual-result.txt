@@ -1,0 +1,43 @@
+vbuilder init ✓
+created (40):
+  + docs/architecture/microarchitecture.md
+  + docs/architecture/module_interface.md
+  + docs/architecture/rtl_plan.md
+  + docs/architecture/test_plan.md
+  + docs/architecture/theory.md
+  + docs/handoffs/HANDOFF_TEMPLATE.md
+  + docs/release_notes.md
+  + docs/review/rtl_code_review.md
+  + docs/review/test_plan_review.md
+  + docs/user_guide.md
+  + dv/Makefile
+  + dv/common/test_mod_pkg.sv
+  + dv/cov/coverage.sv
+  + dv/env/scoreboard.sv
+  + dv/env/test_mod_agent.sv
+  + dv/env/test_mod_env.sv
+  + dv/filelist.f
+  + dv/regression/run_all.sh
+  + dv/tb/test_mod_tb_top.sv
+  + dv/tests/base_test.sv
+  + dv/tests/random_test.sv
+  + dv/tests/sanity_test.sv
+  + golden/Makefile
+  + golden/model.py
+  + golden/vectors/README.md
+  + Makefile
+  + PROJECT_PLAN.md
+  + README.md
+  + config.mk
+  + .gitignore
+  + scripts/golden_check.sh
+  + scripts/lint.sh
+  + scripts/view_wave.sh
+  + rtl/filelist.f
+  + rtl/tb/Makefile
+  + rtl/tb/axi_stream_bfm.svh
+  + rtl/tb/test_mod_tb.sv
+  + rtl/test_mod.sv
+  + rtl/test_mod_pkg.sv
+  + dv/flow/ (vendored)
+flow: 0.1.0

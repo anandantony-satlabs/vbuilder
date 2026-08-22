@@ -1,0 +1,24 @@
+{
+  "toolResults": [
+    {
+      "toolName": "vbuilder",
+      "isError": false,
+      "content": [
+        "vbuilder add_module ✓\ncreated (4):\n  + rtl/tx_submod.sv\n  + rtl/tx_submod_pkg.sv\n  + rtl/tb/axi_stream_bfm.svh\n  + rtl/tb/tx_submod_tb.sv\nauto-wired (2):\n  ~ rtl/filelist.f\n  ~ rtl/tb/Makefile"
+      ],
+      "args": {
+        "action": "add_module",
+        "projectDir": "/tmp/vbuilder_sandbox_test/test_addmod_proj",
+        "module": "tx_submod",
+        "alsoTb": true,
+        "alsoDv": false
+      }
+    }
+  ],
+  "errors": [],
+  "exitCode": 0,
+  "timedOut": false,
+  "durationMs": 1333,
+  "ok": true,
+  "outcome": "pass"
+}

@@ -1,0 +1,18 @@
+{
+  "name": "add_module_autowires_filelist",
+  "prompt": "Add a scrambler module to the project (auto-wires filelist)",
+  "script": {
+    "tool": "vbuilder",
+    "args": {
+      "action": "add_module",
+      "projectDir": "/tmp/vb-fix-init",
+      "module": "scrambler",
+      "alsoTb": true
+    },
+    "text": "module added"
+  },
+  "expect": {
+    "alive": true,
+    "outputContains": "rtl/filelist.f"
+  }
+}

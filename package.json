@@ -1,0 +1,21 @@
+{
+  "name": "vbuilder",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "RTL verification project scaffolder: stamps out the full golden→RTL→UVM→regress tree with a standardized, simulator-agnostic DV build/run flow.",
+  "pi": {
+    "extensions": [
+      "./index.ts"
+    ]
+  },
+  "scripts": {
+    "check": "tsc --noEmit",
+    "test": "echo \"use extension_sandbox + pi-test-harness\" && exit 0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "typescript": "^5.5.0",
+    "vitest": "^4.1.11"
+  }
+}

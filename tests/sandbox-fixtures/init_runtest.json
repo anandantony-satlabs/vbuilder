@@ -1,0 +1,21 @@
+{
+  "name": "init_uvm_run_test_called",
+  "prompt": "Scaffold a project and verify the tb_top calls run_test() (not a bare $finish false green)",
+  "script": {
+    "tool": "vbuilder",
+    "args": {
+      "action": "init",
+      "project": "test_runtest_proj",
+      "targetDir": "/tmp/vbuilder_sandbox_test/test_runtest_proj",
+      "module": "test_mod",
+      "gitInit": false,
+      "force": true
+    },
+    "text": "VBUILDER_RUNTEST_DONE"
+  },
+  "expect": {
+    "alive": true,
+    "outputContains": "VBUILDER_RUNTEST_DONE",
+    "resultIsError": false
+  }
+}

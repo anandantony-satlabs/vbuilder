@@ -1,0 +1,28 @@
+{
+  "name": "init_full_project",
+  "prompt": "Create a new RTL verification project called test_mod",
+  "script": {
+    "tool": "vbuilder",
+    "args": {
+      "action": "init",
+      "project": "test_mod",
+      "module": "test_mod",
+      "targetDir": "/tmp/vb-fix-init",
+      "dataWidth": 8,
+      "force": true,
+      "gitInit": false,
+      "goldenMode": "file",
+      "ports": [
+        {"name": "clk", "dir": "input", "width": 1, "desc": "clock"},
+        {"name": "rst_n", "dir": "input", "width": 1, "desc": "active-low reset"},
+        {"name": "data_in", "dir": "input", "width": 8},
+        {"name": "data_out", "dir": "output", "width": 8}
+      ]
+    },
+    "text": "init complete"
+  },
+  "expect": {
+    "alive": true,
+    "resultContains": "test_mod.sv"
+  }
+}

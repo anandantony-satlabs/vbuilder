@@ -1,0 +1,24 @@
+{
+  "toolResults": [
+    {
+      "toolName": "vbuilder",
+      "isError": false,
+      "content": [
+        "vbuilder init ✓\ncreated (40):\n  + docs/architecture/microarchitecture.md\n  + docs/architecture/module_interface.md\n  + docs/architecture/rtl_plan.md\n  + docs/architecture/test_plan.md\n  + docs/architecture/theory.md\n  + docs/handoffs/HANDOFF_TEMPLATE.md\n  + docs/release_notes.md\n  + docs/review/rtl_code_review.md\n  + docs/review/test_plan_review.md\n  + docs/user_guide.md\n  + dv/Makefile\n  + dv/common/test_mod_pkg.sv\n  + dv/cov/coverage.sv\n  + dv/env/scoreboard.sv\n  + dv/env/test_mod_agent.sv\n  + dv/env/test_mod_env.sv\n  + dv/filelist.f\n  + dv/regression/run_all.sh\n  + dv/tb/test_mod_tb_top.sv\n  + dv/tests/base_test.sv\n  + dv/tests/random_test.sv\n  + dv/tests/sanity_test.sv\n  + golden/Makefile\n  + golden/model.py\n  + golden/vectors/README.md\n  + Makefile\n  + PROJECT_PLAN.md\n  + README.md\n  + config.mk\n  + .gitignore\n  + scripts/golden_check.sh\n  + scripts/lint.sh\n  + scripts/view_wave.sh\n  + rtl/filelist.f\n  + rtl/tb/Makefile\n  + rtl/tb/axi_stream_bfm.svh\n  + rtl/tb/test_mod_tb.sv\n  + rtl/test_mod.sv\n  + rtl/test_mod_pkg.sv\n  + dv/flow/ (vendored)\nflow: 0.1.0"
+      ],
+      "args": {
+        "action": "init",
+        "project": "test_trace_proj",
+        "targetDir": "/tmp/vbuilder_sandbox_test/test_trace_proj",
+        "module": "test_mod",
+        "gitInit": false
+      }
+    }
+  ],
+  "errors": [],
+  "exitCode": 0,
+  "timedOut": false,
+  "durationMs": 1412,
+  "ok": true,
+  "outcome": "pass"
+}
