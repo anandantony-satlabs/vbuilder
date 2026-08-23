@@ -1,0 +1,17 @@
+{
+  "name": "add_module_dv_inherits_width",
+  "prompt": "Add fifo module with DV component (must inherit width 32 from manifest)",
+  "script": {
+    "tool": "vbuilder",
+    "args": {
+      "action": "add_module",
+      "projectDir": "/tmp/vb-fix-w32",
+      "module": "fifo",
+      "topModule": "w32_top",
+      "alsoTb": true,
+      "alsoDv": true
+    },
+    "text": "fifo added W32AGENT_OK"
+  },
+  "expect": { "alive": true, "outputContains": "dv/common/w32_top_pkg.sv" }
+}

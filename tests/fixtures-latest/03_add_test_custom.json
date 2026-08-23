@@ -1,0 +1,15 @@
+{
+  "name": "add_test_desc_and_base",
+  "prompt": "Add error_probe test with desc",
+  "script": {
+    "tool": "vbuilder",
+    "args": {
+      "action": "add_test",
+      "projectDir": "/tmp/vb-fix-w32",
+      "test": "error_probe_test",
+      "desc": "probes error paths"
+    },
+    "text": "test added TESTSTAMP_OK"
+  },
+  "expect": { "alive": true, "outputContains": "dv/Makefile (TESTS)" }
+}

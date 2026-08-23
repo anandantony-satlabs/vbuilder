@@ -8,10 +8,10 @@
 #
 # Backends live in backends/$(SIM).mk and supply the *_CMD macros.
 # This file is part of the vendored flow snapshot (see vbuilder upgrade-flow).
-# Flow version: 0.1.0
+# Flow version: see FLOW_VERSION below (single source of truth).
 # ============================================================================
 
-FLOW_VERSION := 0.1.1
+FLOW_VERSION := 0.2.0
 FLOW_DIR     ?= flow
 
 # Default simulator. Override with: make regression SIM=vcs
@@ -24,6 +24,8 @@ BUILD_DIR    ?= obj_dir
 SIM_DIR      ?= sim
 SEED         ?= 0
 VERBOSITY    ?= UVM_LOW
+# Extra plusargs passed through to the binary on run-% (e.g. PLUSARGS=+NOVCD)
+PLUSARGS     ?=
 
 # Load the backend (supplies COMPILE_CMD, RUN_CMD, COV_CMD, WAVE_CMD, LINT_CMD).
 -include $(FLOW_DIR)/backends/$(SIM).mk
@@ -58,7 +60,8 @@ run-%: compile
 		+UVM_TESTNAME=$* \
 		+UVM_VERBOSITY=$(VERBOSITY) \
 		+ntb_random_seed=$(SEED) \
-		+seq_count=$(SEQ_COUNT)
+		+seq_count=$(SEQ_COUNT) \
+		$(PLUSARGS)
 
 # Run every test in TESTS — the regression fan-out.
 regression: $(TESTS:%=run-%)

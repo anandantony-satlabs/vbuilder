@@ -44,6 +44,16 @@ export interface VBuilderConfig {
   force?: boolean;
 }
 
+/** Persisted project config (.vbuilder.json) written by init, read by add_*. */
+export interface ProjectManifest {
+  project: string;
+  module: string;
+  dataWidth: number;
+  goldenLang: "python" | "c";
+  goldenMode: "file" | "dpi";
+  createdAt: string;
+}
+
 /** A single RTL module addition (for add-module). */
 export interface AddModuleArgs {
   /** Project root directory (where rtl/ lives). */

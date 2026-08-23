@@ -1,3 +1,5 @@
 node_modules/
 .sandbox-artifacts/
 *.tsbuildinfo
+tests/sandbox-artifacts/
+tests/sandbox-artifacts-*/

@@ -1,0 +1,10 @@
+{
+  "name": "status_after_changes",
+  "prompt": "Report project status",
+  "script": {
+    "tool": "vbuilder",
+    "args": { "action": "status", "projectDir": "/tmp/vb-fix-w32" },
+    "text": "status STATUS_OK"
+  },
+  "expect": { "alive": true, "resultContains": "S2 rtl/filelist.f" }
+}

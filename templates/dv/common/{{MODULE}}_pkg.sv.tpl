@@ -18,7 +18,9 @@ package {{MODULE}}_pkg;
     // --- env components ---
     // {{VBUILDER:PKG_ENV}}
     `include "../env/{{MODULE}}_agent.sv"
+    `include "../env/{{MODULE}}_predictor.sv"
     `include "../env/scoreboard.sv"
+    `include "../cov/coverage.sv"
     `include "../env/{{MODULE}}_env.sv"
 
     // --- tests ---

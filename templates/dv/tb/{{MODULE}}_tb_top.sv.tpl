@@ -56,20 +56,28 @@ module {{MODULE}}_tb_top;
     // Config DB + run_test — the UVM entry point.
     // +UVM_TESTNAME=<test_class> selects the test (set by make run-<test>).
     initial begin
+        // Clean UVM phase timeout: a hung phase fails with a proper report
+        // long before the tb backstop watchdog below. Tests may override.
+        uvm_root::get().set_timeout(10ms, 1);
         uvm_config_db #(virtual {{MODULE}}_if)::set(null, "*", "vif", vif);
         run_test();
     end
 
-    // Waveform dump
+    // Waveform dump — on by default (test_runner/view_wave expect it);
+    // opt out on large regressions with +NOVCD. Named after TB_TOP so the
+    // flow's `make wave` (WAVE_CMD) finds it.
     initial begin
-        $dumpfile("{{MODULE}}_tb.vcd");
-        $dumpvars(0, {{MODULE}}_tb_top);
+        if (!$test$plusargs("NOVCD")) begin
+            $dumpfile("{{MODULE}}_tb_top.vcd");
+            $dumpvars(0, {{MODULE}}_tb_top);
+        end
     end
 
-    // Timeout
+    // Backstop watchdog — only fires if UVM itself is wedged (the UVM phase
+    // timeout above fires first for ordinary hangs).
     initial begin
-        #(10_000_000);
-        `uvm_fatal("TB_TOP", "Simulation timeout")
+        #500_000_000;
+        `uvm_fatal("TB_TOP", "Simulation timeout (backstop)")
     end
 
 endmodule

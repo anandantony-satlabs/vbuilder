@@ -11,6 +11,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { execSync } from "node:child_process";
 import { renderTree } from "./template.ts";
+import { MANIFEST_FILE, saveManifest } from "./manifest.ts";
 import type { VBuilderConfig, VBuilderResult } from "./types.ts";
 
 /** The extension's own root (where flow/ and templates/ live). */
@@ -66,7 +67,8 @@ export function init(cfg: VBuilderConfig): VBuilderResult {
     fs.mkdirSync(targetDir, { recursive: true });
   }
 
-  // Template variables.
+  // Template variables. TEST/BASE_TEST default the sanity/random test
+  // templates at init; add-test re-stamps them with real values later.
   const vars = {
     PROJECT: cfg.project,
     MODULE: cfg.module,
@@ -75,6 +77,8 @@ export function init(cfg: VBuilderConfig): VBuilderResult {
     params: cfg.params ?? [],
     GOLDEN_LANG: cfg.goldenLang ?? "python",
     GOLDEN_MODE: cfg.goldenMode ?? "file",
+    TEST: `${cfg.module}_sanity_test`,
+    BASE_TEST: `${cfg.module}_base_test`,
   };
 
   // 1. Render the whole templates/ tree (rtl, dv, golden, docs, root).
@@ -83,6 +87,14 @@ export function init(cfg: VBuilderConfig): VBuilderResult {
   created.push(...written);
   if (skipped.length > 0) {
     warnings.push(`${skipped.length} files skipped (already exist; use force to overwrite)`);
+  }
+
+  // 1b. Persist the project manifest (add_module / add_test read it back so
+  // later-stamped artifacts inherit the real module name + data width).
+  if (saveManifest(targetDir, cfg)) {
+    created.push(MANIFEST_FILE);
+  } else {
+    warnings.push(`${MANIFEST_FILE} already exists; left untouched`);
   }
 
   // 2. Vendor the flow library into dv/flow/.

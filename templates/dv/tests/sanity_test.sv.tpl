@@ -1,14 +1,15 @@
 // ============================================================================
-// {{TITLE}} — sanity test
+// {{TEST}} — sanity test
 // ----------------------------------------------------------------------------
-// Added by vbuilder. Extend {{MODULE}}_base_test, run basic checks.
-// Auto-registered: `make run-{{MODULE}}_sanity_test`.
+// Added by vbuilder. Extend {{BASE_TEST}}, drive a short known-good sequence
+// through the agent's sequencer. Objections are held only while the sequence
+// runs (event-based, not time-based). Auto-registered: `make run-{{TEST}}`.
 // ============================================================================
 
-class {{MODULE}}_sanity_test extends {{MODULE}}_base_test;
-    `uvm_component_utils({{MODULE}}_sanity_test)
+class {{TEST}} extends {{BASE_TEST}};
+    `uvm_component_utils({{TEST}})
 
-    function new(string name = "{{MODULE}}_sanity_test", uvm_component parent);
+    function new(string name = "{{TEST}}", uvm_component parent);
         super.new(name, parent);
     endfunction
 
@@ -22,8 +23,7 @@ class {{MODULE}}_sanity_test extends {{MODULE}}_base_test;
         phase.raise_objection(this);
         `uvm_info(get_type_name(), "=== Sanity Test ===", UVM_NONE)
         seq = {{MODULE}}_seq::type_id::create("seq");
-        // seq.start(sqr);  // TODO: once sequencer wired
-        #10_000;
+        seq.start(sqr);
         phase.drop_objection(this);
     endtask
 endclass

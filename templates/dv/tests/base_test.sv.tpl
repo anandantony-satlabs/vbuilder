@@ -19,7 +19,7 @@ class {{MODULE}}_base_test extends uvm_test;
 
     virtual function void connect_phase(uvm_phase phase);
         super.connect_phase(phase);
-        // sqr = env.agent.sequencer;  // TODO: once agent is wired
+        sqr = env.agent.sequencer;
     endfunction
 
     virtual function void end_of_elaboration_phase(uvm_phase phase);
@@ -36,8 +36,14 @@ class {{MODULE}}_base_test extends uvm_test;
     endtask
 
     virtual function void report_phase(uvm_phase phase);
+        uvm_report_server svr;
         super.report_phase(phase);
-        if (uvm_top.get_report_server().get_id_count("UVM_ERROR") > 0)
+        // PASS/FAIL from the UVM report server's SEVERITY counters.
+        // (get_id_count("UVM_ERROR") would count by message ID, which is the
+        // reporting component's name — it returns ~0 always → false PASS.)
+        svr = uvm_report_server::get_server();
+        if (svr.get_severity_count(UVM_ERROR) > 0 ||
+            svr.get_severity_count(UVM_FATAL) > 0)
             `uvm_info(get_type_name(), "*** TEST FAILED ***", UVM_NONE)
         else
             `uvm_info(get_type_name(), "*** TEST PASSED ***", UVM_NONE)

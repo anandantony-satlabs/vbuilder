@@ -1,0 +1,10 @@
+{
+  "name": "readd_test_idempotent",
+  "prompt": "Re-add the same test",
+  "script": {
+    "tool": "vbuilder",
+    "args": { "action": "add_test", "projectDir": "/tmp/vb-fix-w32", "test": "error_probe_test" },
+    "text": "idempotent IDEMPOTENT_OK"
+  },
+  "expect": { "alive": true, "resultContains": "exists" }
+}

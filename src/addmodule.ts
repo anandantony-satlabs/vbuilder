@@ -15,6 +15,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { render, renderFileTo } from "./template.ts";
+import { loadManifest } from "./manifest.ts";
 import {
   ANCHOR,
   appendInSection,
@@ -33,15 +34,18 @@ export function addModule(args: AddModuleArgs): VBuilderResult {
   const warnings: string[] = [];
 
   const projectDir = path.resolve(args.projectDir);
-  const top = args.topModule ?? detectTopModule(projectDir);
+  // Manifest (written by init) is the source of truth for top module name and
+  // data width; fall back to filelist heuristics for pre-manifest projects.
+  const manifest = loadManifest(projectDir);
+  const top = args.topModule ?? manifest?.module ?? detectTopModule(projectDir);
   const alsoTb = args.alsoTb ?? true;
   const alsoDv = args.alsoDv ?? false;
   const addToTop = args.addToTop ?? false;
 
   const vars = {
-    PROJECT: path.basename(projectDir),
+    PROJECT: manifest?.project ?? path.basename(projectDir),
     MODULE: args.module,
-    DATA_WIDTH: 8,
+    DATA_WIDTH: manifest?.dataWidth ?? 8,
     ports: args.ports ?? [],
     params: args.params ?? [],
   };
@@ -112,6 +116,18 @@ export function addModule(args: AddModuleArgs): VBuilderResult {
   // 4. Optional DV component wiring.
   if (alsoDv) {
     const dvTplDir = path.join(extRoot(), "templates", "dv", "env");
+    // Stamp a matching interface for the submodule. Verilator resolves
+    // `virtual <module>_if` by finding <module>_if.sv on the include path —
+    // without this file the env fails to elaborate (found the hard way).
+    const { written: wif } = renderFileTo(
+      path.join(extRoot(), "templates", "dv", "common"),
+      "{{MODULE}}_if.sv.tpl",
+      path.join(projectDir, "dv", "common"),
+      vars,
+      false,
+    );
+    if (wif) created.push(`dv/common/${args.module}_if.sv`);
+
     const { written: wdv } = renderFileTo(
       dvTplDir,
       "{{MODULE}}_agent.sv.tpl",
@@ -136,6 +152,19 @@ export function addModule(args: AddModuleArgs): VBuilderResult {
     if (pr.action === "inserted") patched.push(`dv/env/${top}_env.sv`);
     pr = insertAfterAnchor(envSv, ANCHOR.ENV_BUILD, `        ${args.module}_agent_h = ${args.module}_agent::type_id::create("${args.module}_agent_h", this);`);
     if (pr.action === "inserted") patched.push(`dv/env/${top}_env.sv`);
+
+    // Wire the sub-agent's monitor into the analysis topology. The default
+    // is a commented hint: transaction types differ across agents, so the
+    // user must connect to an export of the matching type (or add an
+    // adapter). A blind connect would fail elaboration.
+    pr = insertAfterAnchor(
+      envSv,
+      ANCHOR.ENV_CONNECT,
+      `        // TODO: ${args.module}_agent_h.monitor.ap publishes ${args.module}_seq_item;\n` +
+      `        // connect it to an export of matching type (or adapter) here:\n` +
+      `        // ${args.module}_agent_h.monitor.ap.connect(<analysis_export>);`,
+    );
+    if (pr.action === "inserted") patched.push(`dv/env/${top}_env.sv (connect)`);
   }
 
   if (addToTop) {

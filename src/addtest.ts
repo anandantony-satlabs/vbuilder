@@ -14,10 +14,10 @@
 
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { renderFileTo } from "./template.ts";
+import { render, renderFileTo } from "./template.ts";
+import { baseTestClass, loadManifest } from "./manifest.ts";
 import {
   ANCHOR,
-  appendInSection,
   appendToMakefileVar,
   appendToShell,
   insertAfterAnchor,
@@ -36,23 +36,28 @@ export function addTest(args: AddTestArgs): VBuilderResult {
 
   const projectDir = path.resolve(args.projectDir);
   const test = args.test;
-  const extendsTest = args.extendsTest ?? "base_test";
 
-  // Detect top module name from dv/filelist.f (the *_pkg.sv line).
-  const top = detectDvTop(projectDir);
-  const topPkg = `${top}_pkg`;
+  // Manifest (written by init) is the source of truth for module name and
+  // data width; fall back to filelist heuristics for pre-manifest projects.
+  const manifest = loadManifest(projectDir);
+  const top = manifest?.module ?? detectDvTop(projectDir);
+  const mod = top.replace(/_top$/, "");
+  const baseClass = baseTestClass(mod, args.extendsTest);
 
-  const vars = {
-    PROJECT: path.basename(projectDir),
-    MODULE: top.replace(/_top$/, ""),
-    TEST: test,
-    EXTENDS: extendsTest,
-    DATA_WIDTH: 8,
-  };
-
-  // 1. Stamp the test .sv from the base_test template (reuse + rename).
+  // 1. Stamp the test .sv from the sanity template using real placeholder
+  //    vars ({{TEST}} / {{BASE_TEST}}) — no fragile regex-chaining.
   const tplDir = path.join(extRoot(), "templates", "dv", "tests");
-  const testContent = renderTestFromTemplate(tplDir, vars, args.desc);
+  const raw = fs.readFileSync(path.join(tplDir, "sanity_test.sv.tpl"), "utf8");
+  let testContent = render(raw, {
+    PROJECT: manifest?.project ?? path.basename(projectDir),
+    MODULE: mod,
+    DATA_WIDTH: manifest?.dataWidth ?? 8,
+    TEST: test,
+    BASE_TEST: baseClass,
+  });
+  if (args.desc) {
+    testContent = testContent.replace("// Added by vbuilder.", `// Added by vbuilder.\n// Description: ${args.desc}`);
+  }
   const testPath = path.join(projectDir, "dv", "tests", `${test}.sv`);
   if (fs.existsSync(testPath)) {
     warnings.push(`dv/tests/${test}.sv already exists; left untouched`);
@@ -66,10 +71,10 @@ export function addTest(args: AddTestArgs): VBuilderResult {
   //    NOT as a standalone unit in dv/filelist.f, which fails at global scope
   //    without `import uvm_pkg::*`.). Relative include resolves from
   //    dv/common/<top>_pkg.sv → dv/tests/….
-  const dvPkg = path.join(projectDir, "dv", "common", `${topPkg}.sv`);
+  const dvPkg = path.join(projectDir, "dv", "common", `${top}_pkg.sv`);
   let pr = insertAfterAnchor(dvPkg, ANCHOR.PKG_TESTS, `    \`include "../tests/${test}.sv"`);
-  raiseIfFailed(pr, `dv/common/${topPkg}.sv`);
-  if (pr.action === "inserted") patched.push(`dv/common/${topPkg}.sv`);
+  raiseIfFailed(pr, `dv/common/${top}_pkg.sv`);
+  if (pr.action === "inserted") patched.push(`dv/common/${top}_pkg.sv`);
 
   // 4. dv/Makefile TESTS var.
   const dvMakefile = path.join(projectDir, "dv", "Makefile");
@@ -90,21 +95,6 @@ export function addTest(args: AddTestArgs): VBuilderResult {
   return { action: "add_test", created, patched, warnings };
 }
 
-function renderTestFromTemplate(
-  tplDir: string,
-  vars: Record<string, string | number>,
-  desc: string | undefined,
-): string {
-  const raw = fs.readFileSync(path.join(tplDir, "sanity_test.sv.tpl"), "utf8");
-  let out = raw.replace(/\{\{MODULE\}\}/g, String(vars.MODULE));
-  out = out.replace(/\{\{MODULE\}_sanity_test\}/g, String(vars.TEST));
-  out = out.replace(/sanity/g, String(vars.TEST).replace(/_test$/, ""));
-  if (desc) {
-    out = out.replace("// Added by vbuilder.", `// Added by vbuilder. ${desc}`);
-  }
-  return out;
-}
-
 function detectDvTop(projectDir: string): string {
   const fl = path.join(projectDir, "dv", "filelist.f");
   if (!fs.existsSync(fl)) return "top";
@@ -112,18 +102,4 @@ function detectDvTop(projectDir: string): string {
   const pkg = lines.find((l) => /_pkg\.sv$/.test(l) && !l.startsWith("#"));
   if (pkg) return path.basename(pkg, ".sv").replace(/_pkg$/, "");
   return "top";
-}
-
-function appendBeforeTbTop(_filelist: string, _top: string, _line: string) {
-  const content = fs.readFileSync(filelist, "utf8");
-  if (content.includes(line.trim())) {
-    return { file: filelist, action: "exists" as const };
-  }
-  const topLine = `tb/${top}.sv`;
-  const idx = content.indexOf(topLine);
-  if (idx === -1) {
-    return { file: filelist, action: "missing-anchor" as const, message: `tb top line not found` };
-  }
-  fs.writeFileSync(filelist, content.slice(0, idx) + line + "\n" + content.slice(idx));
-  return { file: filelist, action: "inserted" as const };
 }

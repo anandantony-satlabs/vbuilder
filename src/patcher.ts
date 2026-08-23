@@ -34,6 +34,8 @@ export const ANCHOR = {
   PKG_TESTS: "{{VBUILDER:PKG_TESTS}}",
   /** In *_env.sv build_phase: component creation. */
   ENV_BUILD: "{{VBUILDER:ENV_BUILD}}",
+  /** In *_env.sv connect_phase: analysis connections. */
+  ENV_CONNECT: "{{VBUILDER:ENV_CONNECT}}",
   /** In *_env.sv field decls: component handles. */
   ENV_FIELDS: "{{VBUILDER:ENV_FIELDS}}",
   /** In rtl/tb/Makefile: where per-module sim-<module> targets go. */
@@ -60,7 +62,10 @@ function hasLine(content: string, needle: string): boolean {
 /**
  * Insert `line` after `anchor` in the file at `filePath`.
  * Idempotent: if `line` already present anywhere, returns "exists".
- * If anchor missing, returns "missing-anchor" (loud fail — caller raises).
+ * The anchor must TERMINATE a line (optionally preceded by a comment marker
+ * and indent). Mid-line/prose occurrences of the anchor token are ignored,
+ * so templates may mention anchor names in documentation comments.
+ * If no such anchor line exists, returns "missing-anchor" (loud fail).
  */
 export function insertAfterAnchor(filePath: string, anchor: string, line: string): PatchResult {
   if (!fs.existsSync(filePath)) {
@@ -70,8 +75,16 @@ export function insertAfterAnchor(filePath: string, anchor: string, line: string
   if (hasLine(content, line.trim())) {
     return { file: filePath, action: "exists" };
   }
-  const idx = content.indexOf(anchor);
-  if (idx === -1) {
+  const lines = content.split("\n");
+  let anchorLine = -1;
+  for (let i = 0; i < lines.length; i++) {
+    const t = lines[i].trim();
+    if (t === anchor || t.endsWith(anchor)) {
+      anchorLine = i;
+      break;
+    }
+  }
+  if (anchorLine === -1) {
     return {
       file: filePath,
       action: "missing-anchor",
@@ -79,10 +92,8 @@ export function insertAfterAnchor(filePath: string, anchor: string, line: string
     };
   }
   // Insert on the line after the anchor.
-  const lineEnd = content.indexOf("\n", idx);
-  const insertAt = lineEnd === -1 ? content.length : lineEnd + 1;
-  const updated = content.slice(0, insertAt) + line + "\n" + content.slice(insertAt);
-  fs.writeFileSync(filePath, updated);
+  lines.splice(anchorLine + 1, 0, line);
+  fs.writeFileSync(filePath, lines.join("\n"));
   return { file: filePath, action: "inserted" };
 }
 
