@@ -30,6 +30,17 @@ class {{MODULE}}_predictor extends uvm_component;
         expected_ap = new("expected_ap", this);
     endfunction
 
+    virtual function void end_of_elaboration_phase(uvm_phase phase);
+        super.end_of_elaboration_phase(phase);
+        // Placeholder guard: until the golden hook below is implemented, the
+        // expected stream MIRRORS the DUT output (identity mapping), so any
+        // scoreboard comparison is a tautology. A PASS under this warning
+        // proves infrastructure only — not RTL correctness. Remove this
+        // warning when you implement the golden model.
+        `uvm_warning("PREDICTOR_PLACEHOLDER",
+            "predictor uses identity mapping (e.data_out = t.data_out); PASS proves infrastructure only — implement the golden-model hook")
+    endfunction
+
     virtual function void write({{MODULE}}_seq_item t);
         {{MODULE}}_seq_item e;
         e = {{MODULE}}_seq_item::type_id::create("e");

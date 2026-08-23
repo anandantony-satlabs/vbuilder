@@ -12,6 +12,11 @@
 // ============================================================================
 
 // Distinct write methods per analysis imp (uvm_analysis_imp_decl).
+// NOTE: UVM delivers analysis writes in LEXICOGRAPHIC ORDER of the connected
+// imp's full name (m_imp_list is a string-keyed assoc array) — NOT connect()
+// order, and NOT alphabetical-by-luck that survives renames. Both inputs are
+// therefore queued and paired below, making this scoreboard correct
+// regardless of which subscriber fires first.
 `uvm_analysis_imp_decl(_act)
 `uvm_analysis_imp_decl(_exp)
 
@@ -24,6 +29,7 @@ class {{MODULE}}_scoreboard extends uvm_scoreboard;
     uvm_analysis_imp_exp #({{MODULE}}_seq_item, {{MODULE}}_scoreboard) expected_export;
 
     protected {{MODULE}}_seq_item expected_q[$];
+    protected {{MODULE}}_seq_item actual_q[$];
 
     int unsigned match_count;
     int unsigned mismatch_count;
@@ -42,30 +48,38 @@ class {{MODULE}}_scoreboard extends uvm_scoreboard;
         total_compared = 0;
     endfunction
 
+    // Drain all fully-paired (expected, actual) transactions. Whichever
+    // stream arrives first is simply queued until its partner shows up, so
+    // callback order between predictor and scoreboard cannot cause spurious
+    // "no pending expectation" errors.
+    protected function void try_match();
+        {{MODULE}}_seq_item a, e;
+        while (expected_q.size() > 0 && actual_q.size() > 0) begin
+            e = expected_q.pop_front();
+            a = actual_q.pop_front();
+            total_compared++;
+            // TODO: replace with spec-true field comparison (e.g. e.data_out vs
+            // a.data_out, plus sideband checks). Placeholder compares data_out.
+            if (e.data_out !== a.data_out) begin
+                mismatch_count++;
+                `uvm_error(get_type_name(), $sformatf("MISMATCH: expected=%0h actual=%0h (%s)",
+                    e.data_out, a.data_out, a.convert2string()))
+            end else begin
+                match_count++;
+            end
+        end
+    endfunction
+
     // Predictor output arrives here.
     virtual function void write_exp({{MODULE}}_seq_item t);
         expected_q.push_back(t);
+        try_match();
     endfunction
 
-    // DUT output arrives here — compare against the oldest expectation.
+    // DUT output arrives here — pair against the oldest expectation.
     virtual function void write_act({{MODULE}}_seq_item t);
-        {{MODULE}}_seq_item e;
-        total_compared++;
-        if (expected_q.size() == 0) begin
-            mismatch_count++;
-            `uvm_error(get_type_name(), "DUT output with no pending expectation (predictor lag?)")
-            return;
-        end
-        e = expected_q.pop_front();
-        // TODO: replace with spec-true field comparison (e.g. e.data_out vs
-        // t.data_out, plus sideband checks). Placeholder compares data_out.
-        if (e.data_out !== t.data_out) begin
-            mismatch_count++;
-            `uvm_error(get_type_name(), $sformatf("MISMATCH: expected=%0h actual=%0h (%s)",
-                e.data_out, t.data_out, t.convert2string()))
-        end else begin
-            match_count++;
-        end
+        actual_q.push_back(t);
+        try_match();
     endfunction
 
     virtual function void report_phase(uvm_phase phase);
@@ -74,6 +88,11 @@ class {{MODULE}}_scoreboard extends uvm_scoreboard;
             `uvm_error(get_type_name(), $sformatf("%0d expected transactions never matched (missing DUT outputs?)",
                 expected_q.size()))
             mismatch_count += expected_q.size();
+        end
+        if (actual_q.size() != 0) begin
+            `uvm_error(get_type_name(), $sformatf("%0d DUT outputs never matched (missing predictions?)",
+                actual_q.size()))
+            mismatch_count += actual_q.size();
         end
         `uvm_info(get_type_name(), "=== Scoreboard Report ===", UVM_LOW)
         `uvm_info(get_type_name(), $sformatf("Compared: %0d  Matches: %0d  Mismatches: %0d",
