@@ -49,7 +49,9 @@ class {{MODULE}}_env extends uvm_env;
 
     virtual function void end_of_elaboration_phase(uvm_phase phase);
         super.end_of_elaboration_phase(phase);
-        uvm_top.print_topology();
+        // NOTE: uvm_top.print_topology() removed — Verilator cannot resolve the
+        // package-scoped const `uvm_top` (initialized via function call).
+        // Use `uvm_root::get().print_topology()` on Questa/VCS if needed.
     endfunction
 
     virtual function void report_phase(uvm_phase phase);

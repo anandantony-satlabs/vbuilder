@@ -24,7 +24,8 @@ class {{MODULE}}_base_test extends uvm_test;
 
     virtual function void end_of_elaboration_phase(uvm_phase phase);
         super.end_of_elaboration_phase(phase);
-        uvm_top.print_topology();
+        // NOTE: uvm_top.print_topology() removed — Verilator cannot resolve the
+        // package-scoped const `uvm_top` (see LESSONS.md L2/L10).
     endfunction
 
     virtual task run_phase(uvm_phase phase);

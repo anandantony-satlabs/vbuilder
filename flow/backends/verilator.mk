@@ -30,7 +30,12 @@
 VERILATOR    ?= verilator
 
 # UVM_HOME: the 1800.2 UVM source tree (must contain uvm_pkg.sv).
-UVM_HOME     ?= $(HOME)/tools/1800.2-2020.3.1/src
+# Default matches requirements_verilator.sh (Accellera 1800.2-2017-1.0 → ~/tools).
+# Fallback: first installed 1800.2-* tree, so a different edition still works.
+UVM_HOME     ?= $(HOME)/tools/1800.2-2017-1.0/src
+ifeq ($(wildcard $(UVM_HOME)/uvm_pkg.sv),)
+UVM_HOME      = $(shell ls -d $(HOME)/tools/1800.2-*/src 2>/dev/null | head -1)
+endif
 
 # --- VERILATOR_FLAGS (hardened, Antmicro idiom) ----------------------------
 #   --binary          : auto-generate C++ main() + link in one step
