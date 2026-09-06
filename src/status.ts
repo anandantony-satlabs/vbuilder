@@ -95,10 +95,15 @@ function runRtlLint(projectDir: string): { present: boolean; detail: string } {
     return { present: true, detail: "no rtl/filelist.f yet" };
   }
   // Reuse the installed verilator; prefer the same default the Makefile uses.
+  // NOTE: run from the PROJECT ROOT with -Irtl (module search path) and
+  // -f rtl/filelist.f — NOT cwd:rtl/. Filelist entries are resolved relative
+  // to the invocation CWD (factory L14): bare entries need the -Irtl search
+  // path, and cross-lane integration entries (../ccsds_tx/...) only resolve
+  // from the project root.
   const verilator = process.env.VERILATOR ?? "verilator";
-  const cmd = `${verilator} -Wall -Wno-fatal --lint-only -f filelist.f`;
+  const cmd = `${verilator} -Wall -Wno-fatal --lint-only -Irtl -f rtl/filelist.f`;
   try {
-    execSync(cmd, { cwd: rtlDir, timeout: 30_000, stdio: "pipe" });
+    execSync(cmd, { cwd: projectDir, timeout: 30_000, stdio: "pipe" });
     return { present: true, detail: "rtl/filelist.f lints clean" };
   } catch {
     return { present: false, detail: "rtl lint FAILED (compile error in generated RTL)" };

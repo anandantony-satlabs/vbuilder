@@ -14,7 +14,17 @@ V=${V:-0}
 PYTHON=${PYTHON:-python3}
 
 echo "== golden check: running Python golden model =="
-make -C golden vectors >/dev/null
+GOLDEN_ERR=$(mktemp)
+if ! make -C golden vectors >"$GOLDEN_ERR" 2>&1; then
+    echo "NOT RUN: golden vectors could not be generated (golden/model.py or its input"
+    echo "       samples not implemented yet — see golden/Makefile TODO)."
+    echo "       Cause (first lines):"
+    sed -n '1,5p' "$GOLDEN_ERR"
+    rm -f "$GOLDEN_ERR"
+    echo "NOTRUN"
+    exit 1
+fi
+rm -f "$GOLDEN_ERR"
 
 echo "== golden check: running RTL standalone TB =="
 make -C rtl/tb sim >/dev/null 2>&1 || {
