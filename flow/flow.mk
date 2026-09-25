@@ -54,14 +54,30 @@ compile:
 # $(TEST) (a make variable) which expanded empty → +UVM_TESTNAME= → NOCOMP.
 # Fix: inline the run command with $* directly.
 run-%: compile
-	@echo "== flow $(FLOW_VERSION) / $(SIM): run $* =="
+	@echo "== flow $(FLOW_VERSION) / sim $(SIM): run $* =="
 	mkdir -p $(SIM_DIR)
 	cd $(SIM_DIR) && ../$(BUILD_DIR)/V$(TB_TOP) \
 		+UVM_TESTNAME=$* \
 		+UVM_VERBOSITY=$(VERBOSITY) \
 		+ntb_random_seed=$(SEED) \
 		+seq_count=$(SEQ_COUNT) \
-		$(PLUSARGS)
+		$(PLUSARGS) 2>&1 | tee run_$*.log
+	@if grep -q "TEST FAILED" $(SIM_DIR)/run_$*.log \
+		|| grep -qE "UVM_ERROR[[:space:]]*:[[:space:]]*[1-9]" $(SIM_DIR)/run_$*.log; then \
+		echo "FAIL: $* reported test failure (see $(SIM_DIR)/run_$*.log)"; exit 1; \
+	elif ! grep -q "TEST PASSED" $(SIM_DIR)/run_$*.log; then \
+		echo "FAIL: $* crashed or ended without a verdict (see $(SIM_DIR)/run_$*.log)"; \
+		exit 1; \
+	fi
+# Run-verdict note (review finding, phy_chain 2026-09-25): the sim binary
+# exits 0 even on UVM_ERROR (UVM's report summary does not set the exit
+# status under Verilator) and a crashed run ends without markers. So the
+# make gate greps the run log: FAIL on TEST FAILED / nonzero UVM_ERROR
+# count, and FAIL when no TEST PASSED marker appears (crash/timeout).
+# The pipe's exit status is deliberately NOT used as the verdict (tee owns
+# it). Found in review: a mutated DUT exited 0 with 2 scoreboard mismatches
+# - make regression would have been false-green.
+
 
 # Run every test in TESTS — the regression fan-out.
 regression: $(TESTS:%=run-%)
